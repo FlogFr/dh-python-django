@@ -1,0 +1,15 @@
+#!/usr/bin/perl 
+
+use strict;
+use Debian::Debhelper::Dh_Lib;
+use Data::Dumper;
+
+init(options => {
+});
+
+foreach my $package (@{$dh{DOPACKAGES}}) {
+	verbose_print("Running the python_django_set_env for dpkg-buildpackage");
+	addsubstvar(${package}, "misc:Depends", "systemd, nginx-full, adduser, rsyslog, logrotate");
+	autoscript(${package}, "postinst", "postinst-python-django-set-env", "s/#PACKAGE#/${package}/g");
+	autoscript(${package}, "config", "config-python-django-set-env", "");
+}

@@ -1,0 +1,12 @@
+Source: dh-python-django
+Maintainer: aRkadeFR <contact@arkade.info>
+Section: misc
+Priority: optional
+Build-Depends: debhelper (>= 9)
+
+Package: dh-python-django
+Architecture: any
+Pre-Depends: ${shlibs:Depends}, coreutils, debconf
+Depends: ${misc:Depends}
+Description: Along dh-virtualenv, helps the maintainer to release Django application
+ quickly from source, following debian package policies.

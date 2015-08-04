@@ -1,0 +1,94 @@
+
+case "$1" in
+	"configure"|"reconfigure")
+		. /usr/share/debconf/confmodule
+		db_version 2.0
+
+		db_get django/FQDN
+		DJANGO_FQDN=$RET
+		db_get django/SECRET_KEY
+		DJANGO_SECRET_KEY=$RET
+		db_get django/DB_USER
+		DJANGO_DB_USER=$RET
+		db_get django/DB_HOST
+		DJANGO_DB_HOST=$RET
+		db_get django/DB_PORT
+		DJANGO_DB_PORT=$RET
+		db_get django/DB_PASSWORD
+		DJANGO_DB_PASSWORD=$RET
+
+		# setup settings files
+		cat > /etc/#PACKAGE#/env <<EOF
+DJANGO_SECRET_KEY='${DJANGO_SECRET_KEY}'
+DJANGO_DB_HOST='${DJANGO_DB_HOST}'
+DJANGO_DB_PORT='${DJANGO_DB_PORT}'
+DJANGO_DB_USER='${DJANGO_DB_USER}'
+DJANGO_DB_PASSWORD='${DJANGO_DB_PASSWORD}'
+EOF
+		cat > /etc/nginx/sites-available/#PACKAGE# <<EOF
+upstream #PACKAGE# {
+        server unix:///tmp/#PACKAGE#.sock;
+}
+
+server {
+        listen 80;
+        server_name ${DJANGO_FQDN}.fr;
+        charset utf-8;
+
+        access_log /var/log/nginx/#PACKAGE#.log;
+        error_log /var/log/nginx/#PACKAGE#.err;
+
+        # max upload size
+        client_max_body_size 10M;
+
+        location / {
+                uwsgi_pass #PACKAGE#;
+                include /etc/nginx/uwsgi_params;
+        }
+}
+EOF
+
+		cat > /etc/#PACKAGE#/#PACKAGE#.ini <<EOF
+[uwsgi]
+socket = /tmp/%n.sock
+module = #PACKAGE#.wsgi
+home = /usr/share/python/#PACKAGE#
+uid = #PACKAGE#
+gid = #PACKAGE#
+chmod = 775
+logger = syslog:local4
+processes = 4
+master = 1
+EOF
+		cat > /etc/rsyslog.d/#PACKAGE#.conf <<EOF
+# Configuration file for the django application: #PACKAGE#
+# this is used by the local5 -> 7 facility
+
+\$ModLoad imuxsock
+
+local5.debug /var/log/#PACKAGE#.log;RSYSLOG_TraditionalFileFormat
+local5.warning /var/log/#PACKAGE#.err;RSYSLOG_TraditionalFileFormat
+EOF
+
+
+		if [ -e "/etc/nginx/sites-enabled/#PACKAGE#" ]; then
+			rm -fr "/etc/nginx/sites-enabled/#PACKAGE#"
+		fi
+		ln -s /etc/nginx/sites-available/#PACKAGE# /etc/nginx/sites-enabled/#PACKAGE#
+
+		# add the user
+		adduser --system --group --quiet --no-create-home \
+			--disabled-login --force-badname #PACKAGE#
+		usermod -a -G www-data #PACKAGE#
+		usermod -a -G #PACKAGE# www-data 
+
+		if [ -d "/var/#PACKAGE#/" ];
+		then
+		    chown -R www-data:www-data "/var/#PACKAGE#/"
+		fi
+
+		# (re)starting app
+		systemctl restart rsyslog
+		systemctl reload nginx
+		;;
+esac
