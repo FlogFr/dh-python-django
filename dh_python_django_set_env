@@ -1,15 +1,40 @@
-#!/usr/bin/perl 
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2015 aRkadeFR
 
-use strict;
-use Debian::Debhelper::Dh_Lib;
-use Data::Dumper;
+import inspect
+import logging
+import os
+import sys
+from dh_virtualenv.cmdline import get_default_parser
 
-init(options => {
-});
+# adding the debpython
+sys.path.insert(1, os.path.join('/usr', 'share', 'python'))
 
-foreach my $package (@{$dh{DOPACKAGES}}) {
-	verbose_print("Running the python_django_set_env for dpkg-buildpackage");
-	addsubstvar(${package}, "misc:Depends", "systemd, nginx-full, adduser, rsyslog, logrotate");
-	autoscript(${package}, "postinst", "postinst-python-django-set-env", "s/#PACKAGE#/${package}/g");
-	autoscript(${package}, "config", "config-python-django-set-env", "");
-}
+from debpython.debhelper import DebHelper
+
+logging.basicConfig(format='%(levelname).1s: %(module)s:%(lineno)d: '
+                     '%(message)s')
+log = logging.getLogger(__name__)
+
+
+def main():
+        """ Doing the deb build system for Django. """
+        parser = get_default_parser()
+        options, args = parser.parse_args()
+        
+        verbose = options.verbose or os.environ.get('DH_VERBOSE', '0') == '1'
+        if verbose:
+                log.setLevel(logging.DEBUG)
+
+        options.compile_all = False
+        dh = DebHelper(options)
+        
+        for package, details in dh.packages.items():
+                dh.autoscript(package, 'postinst', 'postinst-python-django-set-env', '-')
+                dh.autoscript(package, 'config', 'config-python-django-set-env', '-')
+        
+        dh.save_autoscripts()
+
+if __name__ == '__main__':
+        sys.exit(main() or 0)

@@ -1,0 +1,4 @@
+debian/dh-python-django/*
+debian/*log
+debian/*substvars
+debian/files
