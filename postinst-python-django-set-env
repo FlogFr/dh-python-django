@@ -32,7 +32,7 @@ upstream #PACKAGE# {
 
 server {
         listen 80;
-        server_name ${DJANGO_FQDN}.fr;
+        server_name ${DJANGO_FQDN};
         charset utf-8;
 
         access_log /var/log/nginx/#PACKAGE#.log;
