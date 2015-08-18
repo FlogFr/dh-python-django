@@ -26,10 +26,6 @@ DJANGO_DB_USER='${DJANGO_DB_USER}'
 DJANGO_DB_PASSWORD='${DJANGO_DB_PASSWORD}'
 EOF
 		cat > /etc/nginx/sites-available/#PACKAGE# <<EOF
-upstream #PACKAGE# {
-        server unix:///tmp/#PACKAGE#.sock;
-}
-
 server {
         listen 80;
         server_name ${DJANGO_FQDN};
@@ -42,7 +38,7 @@ server {
         client_max_body_size 10M;
 
         location / {
-                uwsgi_pass #PACKAGE#;
+                uwsgi_pass uwsgi://localhost:3031;
                 include /etc/nginx/uwsgi_params;
         }
 }
@@ -50,7 +46,7 @@ EOF
 
 		cat > /etc/#PACKAGE#/#PACKAGE#.ini <<EOF
 [uwsgi]
-socket = /tmp/%n.sock
+socket = 127.0.0.1:3031
 module = #PACKAGE#.wsgi
 home = /usr/share/python/#PACKAGE#
 uid = #PACKAGE#
