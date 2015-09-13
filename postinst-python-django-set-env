@@ -25,24 +25,6 @@ DJANGO_DB_PORT='${DJANGO_DB_PORT}'
 DJANGO_DB_USER='${DJANGO_DB_USER}'
 DJANGO_DB_PASSWORD='${DJANGO_DB_PASSWORD}'
 EOF
-		cat > /etc/nginx/sites-available/#PACKAGE# <<EOF
-server {
-        listen 80;
-        server_name ${DJANGO_FQDN};
-        charset utf-8;
-
-        access_log /var/log/nginx/#PACKAGE#.log;
-        error_log /var/log/nginx/#PACKAGE#.err;
-
-        # max upload size
-        client_max_body_size 10M;
-
-        location / {
-                uwsgi_pass uwsgi://localhost:3031;
-                include /etc/nginx/uwsgi_params;
-        }
-}
-EOF
 
 		cat > /etc/#PACKAGE#/#PACKAGE#.ini <<EOF
 [uwsgi]
