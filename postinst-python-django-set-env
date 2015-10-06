@@ -26,9 +26,9 @@ DJANGO_DB_USER='${DJANGO_DB_USER}'
 DJANGO_DB_PASSWORD='${DJANGO_DB_PASSWORD}'
 EOF
 
-		cat > /etc/#PACKAGE#/#PACKAGE#.ini <<EOF
+		cat > /etc/#PACKAGE#/uwsgi.ini <<EOF
 [uwsgi]
-socket = 127.0.0.1:3031
+socket = 0.0.0.0:3031
 module = #PACKAGE#.wsgi
 home = /usr/share/python/#PACKAGE#
 uid = #PACKAGE#
@@ -47,12 +47,6 @@ EOF
 local5.debug /var/log/#PACKAGE#.log;RSYSLOG_TraditionalFileFormat
 local5.warning /var/log/#PACKAGE#.err;RSYSLOG_TraditionalFileFormat
 EOF
-
-
-		if [ -e "/etc/nginx/sites-enabled/#PACKAGE#" ]; then
-			rm -fr "/etc/nginx/sites-enabled/#PACKAGE#"
-		fi
-		ln -s /etc/nginx/sites-available/#PACKAGE# /etc/nginx/sites-enabled/#PACKAGE#
 
 		# add the user
 		adduser --system --group --quiet --no-create-home \
