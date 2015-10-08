@@ -1,4 +1,3 @@
 python_django.pm usr/share/perl5/Debian/Debhelper/Sequence/
 dh_python_django_set_env usr/bin/
-config-python-django-set-env usr/share/debhelper/autoscripts/
 postinst-python-django-set-env usr/share/debhelper/autoscripts/
