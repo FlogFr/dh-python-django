@@ -10,7 +10,7 @@ case "$1" in
                     /bin/rm -fr "/etc/#PACKAGE#/env"
         fi
 
-        for VARIABLE_NAME in `/usr/bin/debconf-show #PACKAGE# | cut -d' ' -f 2 | cut -d'/' -f2 | tr -d ':'`;
+        for VARIABLE_NAME in `/usr/bin/debconf-show #PACKAGE# | grep 'DJANGO_' | /usr/bin/awk '{print $2}' | /usr/bin/cut -d'/' -f2 | /usr/bin/tr -d ':'`;
         do
             db_get django/${VARIABLE_NAME}
             /bin/cat >> /etc/#PACKAGE#/env <<EOF
