@@ -1,0 +1,8 @@
+
+case "$1" in
+    "remove")
+        /bin/rm -fr "/etc/#PACKAGE#/env"
+        /bin/rm -fr "/etc/#PACKAGE#/uwsgi.ini"
+        /bin/rm -fr /etc/rsyslog.d/#PACKAGE#.conf
+        ;;
+esac

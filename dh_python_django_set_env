@@ -32,6 +32,7 @@ def main():
         
         for package, details in dh.packages.items():
                 dh.autoscript(package, 'postinst', 'postinst-python-django-set-env', '-')
+                dh.autoscript(package, 'prerm', 'prerm-python-django-set-env', '-')
         
         dh.save_autoscripts()
 
