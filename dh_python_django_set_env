@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2015 aRkadeFR
 
-import inspect
 import logging
 import os
 import sys
@@ -22,18 +21,18 @@ def main():
         """ Doing the deb build system for Django. """
         parser = get_default_parser()
         options, args = parser.parse_args()
-        
+
         verbose = options.verbose or os.environ.get('DH_VERBOSE', '0') == '1'
         if verbose:
                 log.setLevel(logging.DEBUG)
 
         options.compile_all = False
         dh = DebHelper(options)
-        
+
         for package, details in dh.packages.items():
                 dh.autoscript(package, 'postinst', 'postinst-python-django-set-env', '-')
                 dh.autoscript(package, 'prerm', 'prerm-python-django-set-env', '-')
-        
+
         dh.save_autoscripts()
 
 if __name__ == '__main__':
